@@ -11,7 +11,7 @@ IN_TABLE_CUSTOMERS = "customers"
 IN_TABLE_PRODUCT_VIEWS = "product_views"
 IN_TABLE_ORDERS = "orders"
 
-OUT_DATASET_ID = "a_ganipineni_project_1"
+OUT_DATASET_ID = "final_archana_ganipineni"
 OUT_TABLE_CUST_PROD_VIEWS = "cust_tier_code-sku-total_no_of_product_views"
 OUT_TABLE_CUST_SALES = "cust_tier_code-sku-total_sales_amount"
 
@@ -77,14 +77,14 @@ def run():
         job_name=JOB_NAME,
         save_main_session=True
     )
-    with beam.Pipeline(options=local_beam_options) as p:  # runner='DataflowRunner',
+    with beam.Pipeline(options=beam_options) as p:
         data_from_prod_views = p | "Read data from customers & prod views" >> beam.io.ReadFromBigQuery(
             query="SELECT c.cust_tier_code, p.sku, count(*) AS total_no_of_product_views "
                     "FROM final_input_data.product_views AS p "
                     "JOIN final_input_data.customers AS c "
                     "ON p.customer_id = c.customer_id "
-                    "GROUP BY c.cust_tier_code, p.sku "
-                    "LIMIT 7", project=PROJECT_ID,
+                    "GROUP BY c.cust_tier_code, p.sku ",
+                    project=PROJECT_ID,
             use_standard_sql=True)  # | "print results prod views" >> beam.Map(print)
 
         data_from_sales = p | "Read data from customers & sales" >> beam.io.ReadFromBigQuery(
@@ -92,8 +92,8 @@ def run():
                     "FROM `york-cdf-start.final_input_data.orders` AS o "
                     "JOIN `york-cdf-start.final_input_data.customers` AS c "
                     "ON o.customer_id = c.customer_id "
-                    "GROUP BY c.cust_tier_code, o.sku "
-                    "LIMIT 7", project=PROJECT_ID,
+                    "GROUP BY c.cust_tier_code, o.sku ",
+                    project=PROJECT_ID,
             use_standard_sql=True)  # | "print results sales" >> beam.Map(print)
 
         # write to prod views table
