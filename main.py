@@ -11,11 +11,12 @@ IN_TABLE_CUSTOMERS = "customers"
 IN_TABLE_PRODUCT_VIEWS = "product_views"
 IN_TABLE_ORDERS = "orders"
 
-OUT_DATASET_ID = "a_ganipineni_project_1"  # a_ganipineni_project_1  final_archana_ganipineni
+OUT_DATASET_ID = "final_archana_ganipineni"
 OUT_TABLE_CUST_PROD_VIEWS = "cust_tier_code-sku-total_no_of_product_views"
 OUT_TABLE_CUST_SALES = "cust_tier_code-sku-total_sales_amount"
 
-TEMP_LOCATION = "gs://york_temp_files"
+TEMP_LOCATION = "gs://york_temp_files/tmp"
+STAGING_LOCATION = "gs://york_temp_files/staging"
 REGION = "us-central1"
 JOB_NAME = "archana-ganipineni-final-job"
 RUNNER = "DataflowRunner"
@@ -60,6 +61,7 @@ def run():
         project=PROJECT_ID,
         job_name=JOB_NAME,
         temp_location=TEMP_LOCATION,
+        staging_location=STAGING_LOCATION,
         region=REGION)
 
     local_beam_options = PipelineOptions(
@@ -67,6 +69,7 @@ def run():
         project=PROJECT_ID,
         job_name=JOB_NAME,
         temp_location=TEMP_LOCATION,
+        staging_location=STAGING_LOCATION,
         region=REGION
     )
 
@@ -74,6 +77,7 @@ def run():
         project=PROJECT_ID,
         region=REGION,
         temp_location=TEMP_LOCATION,
+        staging_location=STAGING_LOCATION,
         job_name=JOB_NAME,
         save_main_session=True
     )
@@ -100,7 +104,7 @@ def run():
         data_from_prod_views | "Write data to prod views table" >> beam.io.WriteToBigQuery(
             dest_table_cust_prod_views,
             schema=dest_schema_cust_prod_views,
-            write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND,
+            write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE,
             create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED
         )
 
@@ -108,7 +112,7 @@ def run():
         data_from_sales | "Write data to sales table" >> beam.io.WriteToBigQuery(
             dest_table_cust_sales,
             schema=dest_schema_cust_sales,
-            write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND,
+            write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE,
             create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED
         )
 
