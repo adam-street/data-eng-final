@@ -55,6 +55,7 @@ def run():
     parser = argparse.ArgumentParser()
     args, beam_args = parser.parse_known_args()
 
+    # this will create Dataflow Runner job
     beam_options = PipelineOptions(
         beam_args,
         runner='DataflowRunner',
@@ -64,15 +65,7 @@ def run():
         staging_location=STAGING_LOCATION,
         region=REGION)
 
-    local_beam_options = PipelineOptions(
-        beam_args,
-        project=PROJECT_ID,
-        job_name=JOB_NAME,
-        temp_location=TEMP_LOCATION,
-        staging_location=STAGING_LOCATION,
-        region=REGION
-    )
-
+    # to run locally for test. DataflowRunner takes longtime and cost money for each run
     pipeline_options = PipelineOptions(
         project=PROJECT_ID,
         region=REGION,
@@ -81,7 +74,7 @@ def run():
         job_name=JOB_NAME,
         save_main_session=True
     )
-    with beam.Pipeline(options=pipeline_options) as p:
+    with beam.Pipeline(options=beam_options) as p:
         data_from_prod_views = p | "Read data from customers & prod views" >> beam.io.ReadFromBigQuery(
             query="SELECT c.cust_tier_code, p.sku, count(*) AS total_no_of_product_views "
                     "FROM final_input_data.product_views AS p "
