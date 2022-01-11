@@ -97,7 +97,7 @@ def run():
         )
         # data1 | "Print" >> beam.Map(print)
         data2 = pipeline | "ReadFromBigQuery2" >> beam.io.ReadFromBigQuery(
-            query='SELECT table4.CUST_TIER_CODE, table5.SKU, SUM(table5.ORDER_AMT) as total_sales_amount FROM `york-cdf-start.final_input_data.customers` as table4 '\
+            query='SELECT table4.CUST_TIER_CODE, table5.SKU, ROUND(SUM(table5.ORDER_AMT), 2) as total_sales_amount FROM `york-cdf-start.final_input_data.customers` as table4 '\
                   'JOIN `york-cdf-start.final_input_data.orders` as table5 ON table4.CUSTOMER_ID = table5.CUSTOMER_ID '\
                     'GROUP BY table4.CUST_TIER_CODE, table5.SKU',
             use_standard_sql=True,
@@ -118,6 +118,7 @@ def run():
             custom_gcs_temp_location="gs://pm_new_project/temp"
         )
 
+        
         pass
 
 if __name__ == '__main__':
